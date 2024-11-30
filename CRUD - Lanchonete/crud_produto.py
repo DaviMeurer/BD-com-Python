@@ -1,4 +1,6 @@
 import mysql.connector
+from Produto import Produto
+
 user="root"
 senha=""
 host="localhost"
@@ -26,21 +28,35 @@ def fechar_conexao(conexao):
         print("Conexão terminada!")
 
 #CREATE
-def create(conexao, descricao, preco, quantidade):
+def create(conexao, Produto):
     try:
         cursor = conexao.cursor()
-        #usar o $s para evitar o SQL injector
-        query = "INSERT into PRODUTOS(descricao, preco, quantidade) VALUES (%s, %s, %s)"
-        cursor.execute(query, (descricao, preco, quantidade))
-        conexao.commit()
-        print(f"{descricao} Registrado com sucesso!")
+        #usar o %s para evitar o SQL injector
+        query = "INSERT into PRODUTOS(descricao, preco, qtd) VALUES(%s, %s, %s)"
+        cursor.execute(query, (Produto.descricao, Produto.preco, Produto.qtd))
+        cursor.commit()
 
     except mysql.connector.Error as e:
-        print(f"Erro ao inserir produto:{e}")
+        print(f"Erro ao inserir produto: {e}")
     finally:
         cursor.close()
 
+# def create(conexao, descricao, preco, quantidade):
+#     try:
+#         cursor = conexao.cursor()
+#         #usar o $s para evitar o SQL injector
+#         query = "INSERT into PRODUTOS(descricao, preco, quantidade) VALUES (%s, %s, %s)"
+#         cursor.execute(query, (descricao, preco, quantidade))
+#         conexao.commit()
+#         print(f"{descricao} Registrado com sucesso!")
+
+#     except mysql.connector.Error as e:
+#         print(f"Erro ao inserir produto:{e}")
+#     finally:
+#         cursor.close()
+
 def read(conexao): #READ
+    listaProdutos = []
     try:
         cursor = conexao.cursor()
         query = "Select * from produtos"
@@ -48,12 +64,14 @@ def read(conexao): #READ
         registros = cursor.fetchall()
 
         for produtos in registros:
-            print(produtos)
+            objeto = Produto(*produtos) #Produto(registro[0], registro[1],...)
+            listaProdutos.append(objeto)
 
     except mysql.connector.Error as e:
         print(f"Erro ao listar produtos: {e}")
     finally:
         cursor.close()
+    return listaProdutos
 
 #UPDATE
 def update(conexao, preco, quantidade, codigo):
@@ -82,17 +100,23 @@ def delete(conexao, codigo):
         print(f"Erro ao deletar o produto!")
     finally:
         cursor.close()
+        
 #MAIN
 conexao = conectar()
-if conexao:
+if conexao: #ou if conexao!=None
     print("Conectado com o banco de dados!")
 
-    #create(conexao, "Sprite", 20, 8)
+    #novo_produto = Produto(None,"Achocolatado Nescau", 10, 10)
+    #create(conexao, novo_produto)
 
     read(conexao)
 
     #update(conexao,2,5,10)
 
     #delete(conexao, 4)
+
+    produtos = read(conexao)
+    for produto in produtos:
+        produto.listar()
 
     fechar_conexao(conexao)
