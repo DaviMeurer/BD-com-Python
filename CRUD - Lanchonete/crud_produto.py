@@ -55,7 +55,8 @@ def create(conexao, Produto):
 #     finally:
 #         cursor.close()
 
-def read(conexao): #READ
+#READ
+def read(conexao):
     listaProdutos = []
     try:
         cursor = conexao.cursor()
@@ -100,6 +101,25 @@ def delete(conexao, codigo):
         print(f"Erro ao deletar o produto!")
     finally:
         cursor.close()
+
+#BUSCAR
+def buscar(conexao, busca):
+    listaProdutos=[]
+    try:
+        cursor = conexao.cursor()
+        query = "SELECT * from PRODUTOS where DESCRICAO like %s"
+        cursor.execute(query, ("%s"+busca+"%s",))
+        registros = cursor.fetchall()
+
+        for produtos in registros:
+            objeto = Produto(*produto)
+            listaProdutos.append(objeto)
+
+    except mysql.connector.Error as e:
+        print(f"Erro ao buscar produto: {e}")
+    finally:
+        cursor.close()
+    return listaProdutos
         
 #MAIN
 conexao = conectar()
