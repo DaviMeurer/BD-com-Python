@@ -129,14 +129,19 @@ if conexao: #ou if conexao!=None
     #novo_produto = Produto(None,"Achocolatado Nescau", 10, 10)
     #create(conexao, novo_produto)
 
-    read(conexao)
+    produtosR = read(conexao)
+    for produto in produtosR:
+        produto.listar()
 
     #update(conexao,2,5,10)
 
     #delete(conexao, 4)
 
-    produtos = read(conexao)
-    for produto in produtos:
-        produto.listar()
+    produtosB = buscar(conexao, "Coco")
+    if produtosB!=[]:
+        for produtos in produtosB:
+            produto.listar()
+    else:
+        print("Nenhum produto encontrado!")
 
     fechar_conexao(conexao)
